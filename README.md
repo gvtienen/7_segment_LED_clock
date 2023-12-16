@@ -3,10 +3,18 @@ Software for a Wemos D1 mini + WS2812B based Led clock.
 Building information: https://www.printables.com/model/610020-big-wall-mounted-7-segment-led-clock
 
 # Installation
+
+## Arduino IDE
  * Open the 7_segment_LED_clock.ino file with the arduino IDE
  * Select the Board:  LOLIN(WEMOS) D1 R2 & mini
- * Install lib: FastLED (version 3.6.0)
+ * Install libraries: FastLED (version 3.6.0) and NTPClient
  * Compile and upload to the wemos
+
+## PlatformIO
+ * Open the projectfolder in PlatformIO
+ * Click on Build (or Ctrl+Alt+B)
+ * PlatformIO should automatically download libraries and compile the code
+ * Click on Upload (or Ctrl+Alt+U)
 
 # Notes:
  * Do not connect the USB together with the power supply to the LED-clock
