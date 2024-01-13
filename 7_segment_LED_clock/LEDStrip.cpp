@@ -19,12 +19,7 @@
 
 #include "LEDStrip.h"
 #include "config.h"
-#define FASTLED_INTERNAL // Avoid FastLED compilation warnings
-// TODO try:
-//#define FASTLED_INTERRUPT_RETRY_COUNT 1
-//#define FASTLED_INTERRUPT_RETRY_COUNT 0
-//#define FASTLED_ALLOW_INTERRUPTS 0
-#include <FastLED.h>
+#include "LEDPattern.h"
 
 
 #define NUM_LEDS          86
@@ -57,6 +52,8 @@ String segments8 = "abcdefg";
 String segments9 = "abcdfg";
 String NO_segments = "";
 
+uint32_t current_color = 0xff0000; // Red
+uint8_t initialhue = 100;
 
 Digit& get_digit(int digit_id)
 {
@@ -71,8 +68,8 @@ Digit& get_digit(int digit_id)
   return digit1;
 }
 
-// digit_id : 1-4, segment: a-g, lednr: 1-3
-int get_physical_LED_id(int digit_id, char segment, int lednr)
+// digit_id : 1-4, segment: a-g, lednb: 1-3
+int get_physical_LED_id(int digit_id, char segment, int lednb)
 {
   Digit& digit = get_digit(digit_id);
   int index = 0;
@@ -86,9 +83,9 @@ int get_physical_LED_id(int digit_id, char segment, int lednr)
     case 'f' : index = 15; break;
     case 'g' : index = 18; break;
   }
-  if ((lednr >= 1) and (lednr <= 3 ))
+  if ((lednb >= 1) and (lednb <= 3 ))
   {
-    index += (lednr -1);
+    index += (lednb -1);
   }
 
   return digit[index];
@@ -112,23 +109,58 @@ const String& getNumberSegments(int num)
   return NO_segments;
 }
 
+CRGB LEDStrip::get_led_color(int digit_id, char segment, int lednb)
+{
+  if (pattern == ColorPattern::solid)
+    return current_color;
+  else if (pattern == ColorPattern::rainbow)
+  {
+    CHSV hsv;
+    hsv.hue = initialhue + (digit_id-1) * 50;
+    hsv.val = 255;
+    hsv.sat = 240;
+    return hsv;
+  }
+  else
+    return get_matrix_color(digit_id, segment, lednb);
+}
+
+// dot_id : 1-2
+CRGB LEDStrip::get_dots_color(int dot_id)
+{
+  if (modus == ClockModus::wifiConnect)
+    return CRGB::Blue;
+  else if (pattern == ColorPattern::solid)
+    return current_color;
+  else if (pattern == ColorPattern::rainbow)
+  {
+    CHSV hsv;
+    hsv.hue = initialhue + 75;
+    hsv.val = 255;
+    hsv.sat = 240;
+    return hsv;
+  }
+  else
+    return get_matrix_dots_color(dot_id);
+}
+
 void clearAllLEDs()
 {
   // TODO fill_solid(leds, NUM_LEDS, CRGB::Black);
+  // TODO use FastLED.clear() cmd
   for (int i=0; i < NUM_LEDS; i++)
   {
     leds[i] = CRGB::Black;
   }
 }
 
-void showDots(bool dotHigh, bool dotLow, CRGB color)
+void LEDStrip::showDots(bool dotHigh, bool dotLow)
 {
-	leds[dot1] = dotHigh ? color : CRGB::Black;
-	leds[dot2] = dotLow ? color : CRGB::Black;
+	leds[dot1] = dotHigh ? get_dots_color(1) : CRGB::Black;
+	leds[dot2] = dotLow ? get_dots_color(2) : CRGB::Black;
 }
 
-
-void showNumber(int digitId, uint8_t num)
+void LEDStrip::showNumber(int digitId, uint8_t num)
 {
   const String& segments = getNumberSegments(num);
   int len = segments.length();
@@ -138,31 +170,60 @@ void showNumber(int digitId, uint8_t num)
     {
       int physled = get_physical_LED_id(digitId, segments[i], lednb);
       if (physled < NUM_LEDS)
-        leds[physled] = CRGB::Red;
+        leds[physled] = get_led_color(digitId, segments[i], lednb);
     }
   }
 }
 
-void showTime(uint8_t hours, uint8_t minutes)
+void LEDStrip::initPatternColors()
 {
-   uint8_t hours_D1 = hours / 10;
-   uint8_t hours_D2 = hours % 10;
-   uint8_t minutes_D1 = minutes / 10;
-   uint8_t minutes_D2 = minutes % 10;
-   Serial.printf("Show time = %d%d:%d%d\n", hours_D1, hours_D2, minutes_D1, minutes_D2);
-   
-   clearAllLEDs();
-   showDots(true, true, CRGB::Red);
-   showNumber(1, hours_D1);
-   showNumber(2, hours_D2);
-   showNumber(3, minutes_D1);
-   showNumber(4, minutes_D2);
-   FastLED.show();
-   FastLED.delay(1000 / FRAMES_PER_SECOND);
+  if (config.getColorPattern() != pattern)
+  {
+    pattern = config.getColorPattern();
+    if (pattern != ColorPattern::solid)
+    {
+      initColorMatrix(pattern);
+    }
+  }
 }
 
-LEDStrip::LEDStrip()
-  : modus(ClockModus::none),
+void LEDStrip::updatePatternColors()
+{
+  if (pattern == ColorPattern::solid)
+    ; // Nothing todo
+  else if (pattern == ColorPattern::rainbow)
+    initialhue += 7;
+  else
+  {
+    setNextColorMatrixIteration(pattern);
+  }
+}
+
+void LEDStrip::showTime(uint8_t hours, uint8_t minutes)
+{
+  uint8_t hours_D1 = hours / 10;
+  uint8_t hours_D2 = hours % 10;
+  uint8_t minutes_D1 = minutes / 10;
+  uint8_t minutes_D2 = minutes % 10;
+
+  current_color = config.getColor();
+  initPatternColors();
+  clearAllLEDs();
+  showDots(true, true);
+  if (hours_D1 != 0)
+    showNumber(1, hours_D1);
+  showNumber(2, hours_D2);
+  showNumber(3, minutes_D1);
+  showNumber(4, minutes_D2);
+  FastLED.show();
+  FastLED.delay(1000 / FRAMES_PER_SECOND);
+  updatePatternColors();
+}
+
+LEDStrip::LEDStrip(const Configuration& config)
+  : config(config),
+    modus(ClockModus::none),
+    pattern(ColorPattern::solid),
     previousMillis(0),
     current_hours(12),
     current_minutes(0)
@@ -182,10 +243,11 @@ void LEDStrip::updateTime(uint8_t hours, uint8_t minutes)
   {
     current_hours = hours;
     current_minutes = minutes;
-    if (modus == ClockModus::showTime)
+    Serial.printf("Time update : %d:%d\n", hours, minutes);
+    /*if (modus == ClockModus::showTime)
     {
       showTime(current_hours, current_minutes);
-    }
+    }*/
   }
 }
 
@@ -210,14 +272,19 @@ void LEDStrip::handleModusWifiConnect()
     previousMillis = currentMillis;
     blinking_dot = not blinking_dot;
     clearAllLEDs();
-    showDots(false, blinking_dot, CRGB::Blue);
+    showDots(false, blinking_dot);
     FastLED.delay(1000 / FRAMES_PER_SECOND);
   }
 }
 
 void LEDStrip::handleModusShowTime()
 {
-  // Nothing todo, is handled by updateTime()
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= 200) // 0.2s
+  {
+    previousMillis = currentMillis;
+    showTime(current_hours, current_minutes);
+  }
 }
 
 void LEDStrip::loop()

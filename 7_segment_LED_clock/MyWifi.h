@@ -20,15 +20,18 @@
 #pragma once
 #include <Arduino.h>
 
+class Configuration;
+
 enum class WifiStatus : char { startup, connecting, connected};
 
 class MyWifi
 {
   public:
-    MyWifi();
+    MyWifi(const Configuration& config);
     void setup();
     void loop();
     bool isConnected() const;
+    void setWebserverIsStarted();
     void getTime(uint8_t& hours, uint8_t& minutes);
 
   private:
@@ -37,5 +40,6 @@ class MyWifi
     void handleConnected();
 
   private:
+    const Configuration& config;
 	  WifiStatus status;
 };

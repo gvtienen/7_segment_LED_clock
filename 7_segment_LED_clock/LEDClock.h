@@ -19,8 +19,10 @@
 
 #pragma once
 #include <Arduino.h>
+#include "Configuration.h"
 #include "MyWifi.h"
 #include "LEDStrip.h"
+#include "WebServer.h"
 
 enum class ClockStatus : char { startup, waitingForWifi, showTime};
 
@@ -40,8 +42,10 @@ class LEDClock
 	  void handleLDRSensor();
     
   private:
+    Configuration config;
 	  ClockStatus status;
     unsigned long previousMillis;
 	  MyWifi wifi;
 	  LEDStrip leds;
+    WebServer web;
 };

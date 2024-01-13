@@ -17,28 +17,24 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* ************************************************************************************************
- *  
- *  7-segment-LED-clock
- *  
- ***************************************************************************************************
- * HW         : Wemos D1 mini + WS2812B ledstrip
- *              See: https://www.printables.com/model/610020-big-wall-mounted-7-segment-led-clock
- * Board      : LOLIN(WEMOS) D1 R2 & mini
- * Needed libs: FastLED (version 3.6.0)
- *              ESP8266WebServer
- *              ESP8266mDNS
- ***************************************************************************************************/
+#pragma once
 
-#include "LEDClock.h"
+#include <Arduino.h>
 
-LEDClock ledclock;
-void setup()
+class Configuration;
+class WebServer
 {
-  ledclock.setup();
-}
+  public:
+    WebServer(Configuration& config);
+    void setup();
+    void loop();
 
-void loop()
-{
-  ledclock.loop();
-}
+  private:
+    void handleConfig();
+    void handleUpdate();
+    void fileUploadHandler();
+
+  private:
+  Configuration& config;
+	bool is_running;
+};

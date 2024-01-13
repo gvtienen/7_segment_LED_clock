@@ -17,28 +17,13 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* ************************************************************************************************
- *  
- *  7-segment-LED-clock
- *  
- ***************************************************************************************************
- * HW         : Wemos D1 mini + WS2812B ledstrip
- *              See: https://www.printables.com/model/610020-big-wall-mounted-7-segment-led-clock
- * Board      : LOLIN(WEMOS) D1 R2 & mini
- * Needed libs: FastLED (version 3.6.0)
- *              ESP8266WebServer
- *              ESP8266mDNS
- ***************************************************************************************************/
+#pragma once
 
-#include "LEDClock.h"
+#include <Arduino.h>
+#define FASTLED_INTERNAL // Avoid FastLED compilation warnings
+// TODO try:
+//#define FASTLED_INTERRUPT_RETRY_COUNT 1
+#define FASTLED_INTERRUPT_RETRY_COUNT 0
+//#define FASTLED_ALLOW_INTERRUPTS 0
+#include <FastLED.h>
 
-LEDClock ledclock;
-void setup()
-{
-  ledclock.setup();
-}
-
-void loop()
-{
-  ledclock.loop();
-}

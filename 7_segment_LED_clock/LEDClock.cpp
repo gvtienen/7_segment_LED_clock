@@ -19,17 +19,20 @@
 
 #include "LEDClock.h"
 #include "config.h"
+#include "Configuration.h"
 
 String LEDClock::get_version() const
 {
-  return "0.0";
+  return "0.2";
 }
 
 LEDClock::LEDClock()
-  : status(ClockStatus::startup),
+  : config(),
+    status(ClockStatus::startup),
     previousMillis(0),
-    wifi(),
-    leds()
+    wifi(config),
+    leds(config),
+    web(config)
 {}
 
 void LEDClock::setup()
@@ -40,7 +43,7 @@ void LEDClock::setup()
   Serial.print(get_version());
   Serial.println("   ***\n");
   pinMode(LDR_PIN, INPUT);
-
+  config.setup();
   wifi.setup();
   leds.setup();
 }
@@ -59,6 +62,8 @@ void LEDClock::handleWaitingForWifi()
     status = ClockStatus::showTime;
     previousMillis = millis();
     leds.setModus(ClockModus::showTime);
+    web.setup();
+    wifi.setWebserverIsStarted();
   }
 }
 
@@ -105,5 +110,7 @@ void LEDClock::loop()
   wifi.loop();
   yield();
   leds.loop();
+  yield();
+  web.loop();
   delay(10);
 }

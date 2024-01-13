@@ -17,28 +17,51 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* ************************************************************************************************
- *  
- *  7-segment-LED-clock
- *  
- ***************************************************************************************************
- * HW         : Wemos D1 mini + WS2812B ledstrip
- *              See: https://www.printables.com/model/610020-big-wall-mounted-7-segment-led-clock
- * Board      : LOLIN(WEMOS) D1 R2 & mini
- * Needed libs: FastLED (version 3.6.0)
- *              ESP8266WebServer
- *              ESP8266mDNS
- ***************************************************************************************************/
+#include "Configuration.h"
+#include "config.h"
 
-#include "LEDClock.h"
-
-LEDClock ledclock;
-void setup()
+Configuration::Configuration()
+ : function(ClockFunction::time),
+   pattern(ColorPattern::solid),
+   color(0xff0000) // Red
 {
-  ledclock.setup();
 }
 
-void loop()
+void Configuration::setup()
 {
-  ledclock.loop();
+}
+
+void Configuration::setClockFunction(ClockFunction cf)
+{
+    function = cf;
+}
+
+void Configuration::setColorPattern(ColorPattern cp)
+{
+    pattern = cp;
+}
+
+void Configuration::setColor(uint32_t col)
+{
+    color = col;
+}
+
+const char* Configuration::getHostName() const
+{
+    return "ledclock";
+}
+
+ClockFunction Configuration::getClockFunction() const
+{
+    return function;
+}
+
+ColorPattern Configuration::getColorPattern() const
+{
+    return pattern;
+}
+
+uint32_t Configuration::getColor() const
+{
+    return color;
 }

@@ -20,12 +20,15 @@
 #pragma once
 
 #include <Arduino.h>
+#include "Configuration.h"
+#include "LEDLib.h"
+
 enum class ClockModus : char { none, wifiConnect, selfTest1, showTime};
 
 class LEDStrip
 {
   public:
-    LEDStrip();
+    LEDStrip(const Configuration& config);
     void setup();
     void loop();
     void updateTime(uint8_t hours, uint8_t minutes);
@@ -35,9 +38,18 @@ class LEDStrip
   private:
     void handleModusWifiConnect();
     void handleModusShowTime();
+    void showTime(uint8_t hours, uint8_t minutes);
+    void showNumber(int digitId, uint8_t num);
+    void showDots(bool dotHigh, bool dotLow);
+    void initPatternColors();
+    void updatePatternColors();
+    CRGB get_led_color(int digit_id, char segment, int lednr);
+    CRGB get_dots_color(int dot_id);
 
   private:
+    const Configuration& config;
     ClockModus modus;
+    ColorPattern pattern;
     unsigned long previousMillis;
     uint8_t current_hours;
     uint8_t current_minutes;

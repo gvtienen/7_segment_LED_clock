@@ -16,6 +16,11 @@ Building information: https://www.printables.com/model/610020-big-wall-mounted-7
  * PlatformIO should automatically download libraries and compile the code
  * Click on Upload (or Ctrl+Alt+U)
 
+ ## VSCode
+ * Open the project folder in VSCode and let it install PlatformIO IDE
+ * Click on Build
+ * Click on Upload
+
 # Notes:
  * Do not connect the USB together with the power supply to the LED-clock
  * Do not keep the LED-clock running via the USB power, it will get too hot

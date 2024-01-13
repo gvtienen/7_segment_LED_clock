@@ -19,9 +19,12 @@
 
 #include "MyWifi.h"
 #include "config.h"
+#include "Configuration.h"
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include <NTPClient.h>
+#include <ESP8266mDNS.h>
+
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, ntp_server, timezone_offset, 60000);// server, offset, interval_ms
@@ -30,8 +33,9 @@ int sta_max_retries = 30;
 unsigned long previousMillis = 0;
 
 
-MyWifi::MyWifi()
-  : status(WifiStatus::startup)
+MyWifi::MyWifi(const Configuration& config)
+  : config(config),
+    status(WifiStatus::startup)
 {}
 
 void wifi_connect_to(const char* ssid, const char* passwd)
@@ -46,6 +50,7 @@ void wifi_connect_to(const char* ssid, const char* passwd)
 void MyWifi::setup()
 {
   WiFi.mode(WIFI_STA);
+  WiFi.hostname(config.getHostName());
 }
 
 void MyWifi::handleStartup()
@@ -63,13 +68,18 @@ void MyWifi::handleConnecting()
     previousMillis = currentMillis;
     if (WiFi.status() == WL_CONNECTED)
     {
-      Serial.println("\nConnected !");
       WiFi.setAutoReconnect(true);
+      Serial.print("\nConnected : ");
+      Serial.println(WiFi.localIP());
       timeClient.begin();
       delay(30);
       timeClient.update();
       status = WifiStatus::connected;
       previousMillis = millis();
+      if (not MDNS.begin(config.getHostName()))
+      {
+        Serial.println("Error setting up MDNS responder!");
+      }
     }
     else
     {
@@ -80,6 +90,11 @@ void MyWifi::handleConnecting()
   }
 }
 
+void MyWifi::setWebserverIsStarted()
+{
+   MDNS.addService("http", "tcp", 80);
+}
+
 void MyWifi::handleConnected()
 {
   unsigned long currentMillis = millis();
@@ -88,6 +103,7 @@ void MyWifi::handleConnected()
     previousMillis = currentMillis;
     timeClient.update();
   }
+  MDNS.update();
 }
 
 bool MyWifi::isConnected() const
