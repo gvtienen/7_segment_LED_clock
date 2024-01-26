@@ -5,7 +5,7 @@ Building information: https://www.printables.com/model/610020-big-wall-mounted-7
 # Installation
 
 ## Arduino IDE
- * Open the 7_segment_LED_clock.ino file with the arduino IDE
+ * Open the 7_segment_LED_clock.ino file with the arduino IDE (only tried with v1.8.19)
  * Select the Board:  LOLIN(WEMOS) D1 R2 & mini
  * Install libraries: FastLED (version 3.6.0) and NTPClient
  * Compile and upload to the wemos
@@ -20,12 +20,16 @@ Building information: https://www.printables.com/model/610020-big-wall-mounted-7
  * Open the project folder in VSCode and let it install PlatformIO IDE
  * Click on Build
  * Click on Upload
+ * After that, you can use the updateFirmware.sh (from Linux)
 
 # Notes:
  * Do not connect the USB together with the power supply to the LED-clock
  * Do not keep the LED-clock running via the USB power, it will get too hot
 
 # TODO later: 
- * OTA to install the firmware over the air
+ * Configure Wifi + ... from webpage (AP mode)
+ * MQTT
+ * use LDR value to set brightness
+ * other LED patterns
 
 
