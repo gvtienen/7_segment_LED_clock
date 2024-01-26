@@ -53,7 +53,7 @@ String segments9 = "abcdfg";
 String NO_segments = "";
 
 uint32_t current_color = 0xff0000; // Red
-uint8_t initialhue = 100;
+uint8_t initialhue = 255;
 
 Digit& get_digit(int digit_id)
 {
@@ -113,10 +113,16 @@ CRGB LEDStrip::get_led_color(int digit_id, char segment, int lednb)
 {
   if (pattern == ColorPattern::solid)
     return current_color;
+  if (pattern == ColorPattern::solidDuo)
+  {
+    if ((digit_id == 1) or (digit_id == 2))
+      return CRGB::LightBlue;
+    return CRGB::Red;
+  }
   else if (pattern == ColorPattern::rainbow)
   {
     CHSV hsv;
-    hsv.hue = initialhue + (digit_id-1) * 50;
+    hsv.hue = initialhue - (digit_id-1) * 50;
     hsv.val = 255;
     hsv.sat = 240;
     return hsv;
@@ -132,10 +138,12 @@ CRGB LEDStrip::get_dots_color(int dot_id)
     return CRGB::Blue;
   else if (pattern == ColorPattern::solid)
     return current_color;
+  else if  (pattern == ColorPattern::solidDuo)
+    return CRGB::LightBlue;
   else if (pattern == ColorPattern::rainbow)
   {
     CHSV hsv;
-    hsv.hue = initialhue + 75;
+    hsv.hue = initialhue - 75;
     hsv.val = 255;
     hsv.sat = 240;
     return hsv;

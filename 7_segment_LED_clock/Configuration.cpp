@@ -21,9 +21,9 @@
 #include "config.h"
 
 Configuration::Configuration()
- : function(ClockFunction::time),
-   pattern(ColorPattern::solid),
-   color(0xff0000) // Red
+  : function(ClockFunction::time),
+    pattern(ColorPattern(DEFAULT_PATTERN_ID)),
+    color(0xff0000) // Red
 {
 }
 

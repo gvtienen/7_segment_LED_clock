@@ -103,6 +103,7 @@ void WebServer::handleUpdate() /* Firmware update */
 {
     server.sendHeader("Connection", "close");
     server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+    delay(200);
     ESP.restart();
 }
 

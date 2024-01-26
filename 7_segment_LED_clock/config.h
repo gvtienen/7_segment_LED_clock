@@ -26,6 +26,7 @@
 // Timezone for Europe/Brussels: offset=3600 for winter, and 7200 during summertime
 #define timezone_offset 3600
 
+#define DEFAULT_PATTERN_ID 4
 
 #define LED_PIN           D4
 #define LDR_PIN           A0

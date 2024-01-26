@@ -20,7 +20,6 @@
 #pragma once
 #include <Arduino.h>
 
-
 enum class ClockFunction : char {time=0, selftest, countdown};
 enum class ColorPattern : char {solid=0, hline, vline, solidDuo, rainbow, matrix, fire, sunset, max};
 
