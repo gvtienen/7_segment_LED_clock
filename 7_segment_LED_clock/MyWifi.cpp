@@ -22,20 +22,17 @@
 #include "Configuration.h"
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
-#include <NTPClient.h>
 #include <ESP8266mDNS.h>
+#include <time.h>
 
-
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, ntp_server, timezone_offset, 60000);// server, offset, interval_ms
 int sta_retry = 0;
 int sta_max_retries = 30;
-unsigned long previousMillis = 0;
-
+time_t now;
 
 MyWifi::MyWifi(const Configuration& config)
   : config(config),
-    status(WifiStatus::startup)
+    status(WifiStatus::startup),
+    previousMillis(0)
 {}
 
 void wifi_connect_to(const char* ssid, const char* passwd)
@@ -45,6 +42,11 @@ void wifi_connect_to(const char* ssid, const char* passwd)
   WiFi.begin(ssid, passwd);
   Serial.print(ssid);
   sta_retry = 0;
+}
+
+void MyWifi::init_time()
+{
+  configTime(my_timezone, ntp_server);
 }
 
 void MyWifi::setup()
@@ -71,9 +73,11 @@ void MyWifi::handleConnecting()
       WiFi.setAutoReconnect(true);
       Serial.print("\nConnected : ");
       Serial.println(WiFi.localIP());
-      timeClient.begin();
-      delay(30);
-      timeClient.update();
+      init_time();
+      uint8_t hours = 0;
+      uint8_t minutes = 0;
+      delay(150);
+      getTime(hours, minutes);
       status = WifiStatus::connected;
       previousMillis = millis();
       if (not MDNS.begin(config.getHostName()))
@@ -101,7 +105,6 @@ void MyWifi::handleConnected()
   if (currentMillis - previousMillis >= 60000) // every 60s
   {
     previousMillis = currentMillis;
-    timeClient.update();
   }
   MDNS.update();
 }
@@ -113,8 +116,11 @@ bool MyWifi::isConnected() const
 
 void MyWifi::getTime(uint8_t& hours, uint8_t& minutes)
 {
-   hours = timeClient.getHours();
-   minutes = timeClient.getMinutes();
+  struct tm timeinfo;
+  time(&now);                       // read the current time
+  localtime_r(&now, &timeinfo); 
+  hours = timeinfo.tm_hour;
+  minutes = timeinfo.tm_min;
 }
 
 void MyWifi::loop()

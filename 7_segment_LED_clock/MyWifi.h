@@ -38,8 +38,10 @@ class MyWifi
     void handleStartup();
     void handleConnecting();
     void handleConnected();
+    void init_time();
 
   private:
     const Configuration& config;
-	  WifiStatus status;
+    WifiStatus status;
+    unsigned long previousMillis;
 };

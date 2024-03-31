@@ -23,8 +23,8 @@
 #define password1   "xxxxx"
 
 #define ntp_server "europe.pool.ntp.org"
-// Timezone for Europe/Brussels: offset=3600 for winter, and 7200 during summertime
-#define timezone_offset 3600
+// See https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
+#define my_timezone "CET-1CEST,M3.5.0,M10.5.0/3" // Europe/Brussels
 
 #define DEFAULT_PATTERN_ID 4
 

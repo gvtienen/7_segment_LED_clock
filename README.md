@@ -4,6 +4,10 @@ Building information: https://www.printables.com/model/610020-big-wall-mounted-7
 
 # Installation
 
+## Update config.h
+ * update SSID and wifi password in the config.h file
+ * update your timezone, and choose a NTP server nearby
+
 ## Arduino IDE
  * Open the 7_segment_LED_clock.ino file with the arduino IDE (only tried with v1.8.19)
  * Select the Board:  LOLIN(WEMOS) D1 R2 & mini
@@ -14,13 +18,18 @@ Building information: https://www.printables.com/model/610020-big-wall-mounted-7
  * Open the projectfolder in PlatformIO
  * Click on Build (or Ctrl+Alt+B)
  * PlatformIO should automatically download libraries and compile the code
- * Click on Upload (or Ctrl+Alt+U)
+ * Connect USB-C cable and click on Upload (or Ctrl+Alt+U)
+ * or from the command line:
+  '''
+   pio run
+   pio run --target upload
+  '''
 
- ## VSCode
+## VSCode
  * Open the project folder in VSCode and let it install PlatformIO IDE
  * Click on Build
- * Click on Upload
- * After that, you can use the updateFirmware.sh (from Linux)
+ * Connect USB-C cable and click on Upload
+ * For the second upload you can use the updateFirmware.sh (from Linux)
 
 # Notes:
  * Do not connect the USB together with the power supply to the LED-clock
@@ -30,6 +39,7 @@ Building information: https://www.printables.com/model/610020-big-wall-mounted-7
  * Configure Wifi + ... from webpage (AP mode)
  * MQTT
  * use LDR value to set brightness
+ * night modus
  * other LED patterns
 
 
